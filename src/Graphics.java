@@ -32,6 +32,15 @@ import javax.swing.SwingUtilities;
 public class Graphics extends JFrame implements MouseListener, MouseMotionListener, ActionListener {
 
 	private final String cardback = "https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/f/f8/Magic_card_back.jpg";
+	
+	private final String forest = "https://static.cardmarket.com/img/20a72e91df381dd044d94597f5f6c7ac/items/1/X2XM/482629.jpg";
+	private final String swamp = "https://static.cardmarket.com/img/7972addf6713fd0a67d3f0277f2b4305/items/1/X2XM/482584.jpg";
+	private final String plains = "https://static.cardmarket.com/img/140131bb0e90f52a4b2c99e30f0d3c79/items/1/X2XM/482574.jpg";
+	private final String island = "https://static.cardmarket.com/img/f2eed6aabee3c4957e7e50a931964820/items/1/X2XM/482579.jpg";
+	private final String mountain = "https://static.cardmarket.com/img/4fe33ae1c8f9b428ab3e2c75caa51007/items/1/X2XM/482589.jpg";
+	
+	
+	
 	private final String backgroundPath = "/background.jpg";
 
 	private final int cardHeight = 88;
@@ -348,11 +357,31 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	      public void run() {
 	    	  
-	    	// fetching the card image that we searched for
+	    	 
+	    	  String cardToAddUrl;
+	    	  
 				try {
-					// find the card and add it to "deck"
-					String cardToAddUrl = fetchImageUrlFromCardName(textFromField);
-
+					
+					 // first we check if it's a basic land, because
+			    	  // then we simply load one of our prepared images
+			    	  
+			    	  if(textFromField.equals("forest")) {
+			    		  cardToAddUrl = forest;
+			    	  }else if(textFromField.equals("mountain")) {
+			    		  cardToAddUrl = mountain;
+			    	  }else if(textFromField.equals("plains")) {
+			    		  cardToAddUrl = plains;
+			    	  }else if(textFromField.equals("swamp")) {
+			    		  cardToAddUrl = swamp;
+			    	  }else if(textFromField.equals("island")) {
+			    		  cardToAddUrl = island;
+			    	  }else {
+			    		// if not a basic land, fetch the card from the Internet. 
+			    		// This is where the exception would trigger if card doesn't exist
+							cardToAddUrl = fetchImageUrlFromCardName(textFromField);
+			    	  }
+					
+					
 					// adding the amount of the requested card
 					for (int i = 0; i < Integer.valueOf(amountFromField); i++) {
 
@@ -398,11 +427,6 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 					JOptionPane.showOptionDialog(Graphics.this, "Could not find card: " + textFromField, "Fail",
 							JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, null, "OK");
 				}
-
-	    	  
-	    	  
-	    	  
-	    	  
 	      }
 	   }
 	 
