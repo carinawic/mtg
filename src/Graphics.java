@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,7 +50,8 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	private ArrayList<JLabel> deckImageList = new ArrayList<JLabel>();
 	private ArrayList<JLabel> deckBigImageList = new ArrayList<JLabel>();
-	private ArrayList<String> libraryList = new ArrayList<String>();
+	
+	private Deck deck;
 
 	private JPopupMenu rightClickLibraryMenu = new JPopupMenu();
 	private JPopupMenu rightClickCardMenu = new JPopupMenu();
@@ -94,13 +96,15 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		cards_in_lib.setLocation(750, 350);
 		mainPanel.add(cards_in_lib);
 		mainPanel.setComponentZOrder(cards_in_lib, 0);
+		
+		
+		deck = new Deck("testDeck");
 
 		/*
 		 * 
 		 * Right click on any card: Shuffle card into library, put in graveyard, Put on
 		 * hand, Put on top of library, Reveal card to opponent, Flip card face down/up,
-		 * Tap/untap, add counter +/+ OR -/- OR loyalty OR custom -> popup skriv in
-		 * själv
+		 * Tap/untap, add counter +/+ OR -/- OR loyalty OR custom -> popup skriv in själv
 		 * 
 		 */
 
@@ -390,38 +394,13 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 						// we do not set location(), because we don't want the card shown yet!
 
 						//first we try to fetch the image from URL, if image doesn't exist then function breaks here
-						deckImageList.add(getLabelFromUrl(cardToAddUrl)[0]);
-						deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
-						deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(Graphics.this);
-						deckImageList.get(deckImageList.size() - 1).addMouseListener(Graphics.this);
-						deckImageList.get(deckImageList.size() - 1).setName(textFromField);
-
-						// setting properties to the big image
-						// we do not set location(), because we don't want the card shown yet
-						// despite that, even though the location isn't set, the card is "still there" so the mouse 
-						// events still triggers it. Therefore we set the bounds coordinates far outside the frame.
-						deckBigImageList.add(getLabelFromUrl(cardToAddUrl)[1]);
-						deckBigImageList.get(deckBigImageList.size() - 1).setName(textFromField);
-						deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth*2, cardHeight*2);
+						deck.addCard(new Card(textFromField, cardToAddUrl));
 						
-						// adding the zoomed image AFTER small image so that the zoomed card appears on top of the normal card
-						mainPanel.add(deckImageList.get(deckImageList.size() - 1));
-						mainPanel.add(deckBigImageList.get(deckBigImageList.size() - 1));
-						
-						mainPanel.setComponentZOrder(deckImageList.get(deckImageList.size() - 1), 0);
-						mainPanel.setComponentZOrder(deckBigImageList.get(deckBigImageList.size() - 1), 0);
-
-						// (if card existed) 
-						// we add the card name to our logical library
-						libraryList.add(textFromField);
-
-
-						setVisible(true);
 
 					}
 
 					// updating cards in library text
-					cards_in_lib.setText("Cards in library: " + libraryList.size());
+					cards_in_lib.setText("Cards in library: " + deck.getNumberOfCards());
 
 				} catch (Exception e) {
 
@@ -430,6 +409,39 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 				}
 	      }
 	   }
+	 
+	public void initSmallAndBigCards() {
+		
+		Iterator<Card> iterator = deck.getCards().iterator(); 
+		
+		while (iterator.hasNext()) { 
+            Card cardToAdd = iterator.next(); 
+            
+            deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
+    		deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
+    		deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(Graphics.this);
+    		deckImageList.get(deckImageList.size() - 1).addMouseListener(Graphics.this);
+    		deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getName());
+
+    		// setting properties to the big image
+    		// we do not set location(), because we don't want the card shown yet
+    		// despite that, even though the location isn't set, the card is "still there" so the mouse 
+    		// events still triggers it. Therefore we set the bounds coordinates far outside the frame.
+    		deckBigImageList.add(getLabelFromUrl(cardToAdd.getUrl())[1]);
+    		deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getName());
+    		deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth*2, cardHeight*2);
+    		
+    		// adding the zoomed image AFTER small image so that the zoomed card appears on top of the normal card
+    		mainPanel.add(deckImageList.get(deckImageList.size() - 1));
+    		mainPanel.add(deckBigImageList.get(deckBigImageList.size() - 1));
+    		
+    		mainPanel.setComponentZOrder(deckImageList.get(deckImageList.size() - 1), 0);
+    		mainPanel.setComponentZOrder(deckBigImageList.get(deckBigImageList.size() - 1), 0);
+            
+        } 
+
+		setVisible(true);
+	}
 	 
 	   
 	   
@@ -460,10 +472,6 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 			
 			addCardsPopup();
 
-			
-			   
-			   
-			
 		}
 
 	}
@@ -481,30 +489,22 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		System.err.println("didn't find label from cardname");
 		return null;
 	}
+	
+	public JLabel getBigImageFromCardName(String cardName) {
 
-	public JLabel getImageFromTopOfLibrary() {
+		for (JLabel cardImage : deckBigImageList) {
+			if (cardImage.getName().equals(cardName)) {
 
-		if (libraryList.size() > 0) {
-			// return top card of library
-			return getImageFromCardName(libraryList.get(libraryList.size() - 1));
-
-		} else {
-
-			// if library was empty
-			System.err.println("can't return image from top of library because library was empty");
-			return null;
-
+				return cardImage;
+			}
 		}
 
+		// if card name wasn't found in deck, return null
+		System.err.println("didn't find label from cardname");
+		return null;
 	}
 
-	public void removeTopOfLibrary() {
-		if (libraryList.size() > 0) {
-			
-			libraryList.remove(libraryList.size() - 1);
-			
-		}
-	}
+
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
@@ -518,25 +518,17 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 			int mouseX = (int) MouseInfo.getPointerInfo().getLocation().getX();
 			int mouseY = (int) MouseInfo.getPointerInfo().getLocation().getY();
 
-			// drag card from the top card out from library
-			// we can not drag a card from library if library is empty!
-			if (enteredCard.equals("library") && libraryList.size() > 0) {
+			// drag card from top of library
+			
+			if (enteredCard.equals("library") && deck.hasCards()) {
 
-				// find the name of card on top of library
-				// find its image
-				// move its image
-
-				getImageFromTopOfLibrary().setLocation(mouseX - 40, mouseY - 70);
+				getImageFromCardName(deck.PeekTopCard().getName()).setLocation(mouseX - 40, mouseY - 70);
 
 			}
 
-			// move a card outside of library
-			// we can still move around cards even if library is empty!
+			// move a card from outside of library
+			
 			if ((!enteredCard.equals("library"))) {
-
-				// find the name of the card we pressed
-				// find it's image
-				// move the image
 				
 				getImageFromCardName(enteredCard).setLocation(mouseX - 40, mouseY - 70);
 
@@ -562,6 +554,9 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 			
 			if (SwingUtilities.isRightMouseButton(e) && enteredCard.equals("library")) {
 				rightClickLibraryMenu.show(e.getComponent(), e.getX(), e.getY());
+				
+				//temporary init cards if right click on lib
+				initSmallAndBigCards();
 
 			}
 
@@ -588,10 +583,10 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		if (enteredCard.equals("library") && !lastEntered.equals("library")) {
 
 			// we have drawn the top card from the library, so we remove it from library
-			removeTopOfLibrary();
+			deck.removeTopCard();
 
 			// updating cards in library text
-			cards_in_lib.setText("Cards in library: " + libraryList.size());
+			cards_in_lib.setText("Cards in library: " + deck.getNumberOfCards());
 
 		}
 	}
@@ -614,17 +609,14 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 				int enteredCardY = e.getComponent().getY();
 
 				// for all big labels, we find the one with the right name
-				for (JLabel zoomedCard : deckBigImageList) {
-					if (zoomedCard.getName().equals(enteredCard)) {
-						
-						zoomedImage = zoomedCard;
-						zoomedImage.setLocation(enteredCardX, enteredCardY);
-						
+				
+				zoomedImage = getBigImageFromCardName(enteredCard);
+				zoomedImage.setLocation(enteredCardX, enteredCardY);
+				
 
-						setVisible(true);
-					}
-
-				}
+				setVisible(true);
+				
+				
 
 			}
 
