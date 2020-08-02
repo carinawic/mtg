@@ -17,6 +17,24 @@ public class Deck {
 		numberOfCards++;
 	}
 	
+	public void clearDeck() {
+		cards.clear();
+	}
+	
+	public Stack<Card> getCards() {
+		return cards;		
+	}
+	
+	public Card PeekTopCard() {
+		if(!cards.isEmpty())
+		{
+			return cards.peek();
+		}
+		else {
+			return null;
+		}
+	}
+	
 	public Card DrawTopCard() {
 		if(!cards.isEmpty())
 		{
@@ -25,6 +43,14 @@ public class Deck {
 		}
 		else {
 			return null;
+		}
+	}
+
+	public void removeTopCard() {
+		if(!cards.isEmpty())
+		{
+			numberOfCards--;
+			cards.pop();
 		}
 	}
 	
@@ -54,6 +80,14 @@ public class Deck {
 	
 	public void shuffle() {
 		Collections.shuffle(cards);
+	}
+	
+	public int getNumberOfCards() {
+		return numberOfCards;
+	}
+	
+	public boolean hasCards() {
+		return numberOfCards > 0;
 	}
 	
 	@Override
