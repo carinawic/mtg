@@ -253,6 +253,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		} catch (IOException iox) {
 			System.err.println("Can not load file");
 		}
+		
 
 		// resizing and placing image
 
@@ -558,6 +559,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		if (enteredCard != null) {
 
+			
 			if (SwingUtilities.isRightMouseButton(e) && enteredCard.equals("library")) {
 				rightClickLibraryMenu.show(e.getComponent(), e.getX(), e.getY());
 
