@@ -33,15 +33,13 @@ import javax.swing.SwingUtilities;
 public class Graphics extends JFrame implements MouseListener, MouseMotionListener, ActionListener {
 
 	private final String cardback = "https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/f/f8/Magic_card_back.jpg";
-	
+
 	private final String forest = "https://static.cardmarket.com/img/20a72e91df381dd044d94597f5f6c7ac/items/1/X2XM/482629.jpg";
 	private final String swamp = "https://static.cardmarket.com/img/7972addf6713fd0a67d3f0277f2b4305/items/1/X2XM/482584.jpg";
 	private final String plains = "https://static.cardmarket.com/img/140131bb0e90f52a4b2c99e30f0d3c79/items/1/X2XM/482574.jpg";
 	private final String island = "https://static.cardmarket.com/img/f2eed6aabee3c4957e7e50a931964820/items/1/X2XM/482579.jpg";
 	private final String mountain = "https://static.cardmarket.com/img/4fe33ae1c8f9b428ab3e2c75caa51007/items/1/X2XM/482589.jpg";
-	
-	
-	
+
 	private final String backgroundPath = "/background.jpg";
 
 	private final int cardHeight = 88;
@@ -50,7 +48,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	private ArrayList<JLabel> deckImageList = new ArrayList<JLabel>();
 	private ArrayList<JLabel> deckBigImageList = new ArrayList<JLabel>();
-	
+
 	private Deck deck;
 
 	private JPopupMenu rightClickLibraryMenu = new JPopupMenu();
@@ -65,30 +63,29 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 	// the component last entered by mouse
 	String lastEntered = "";
 
+	JLabel backgroundLabel;
+
 	public Graphics() {
 
 		super("Magic the gathering");
 
-		//System.setProperty("http.agent", "Chrome");
+		// System.setProperty("http.agent", "Chrome");
 
 		this.setLayout(new BorderLayout());
 
 		mainPanel.setLayout(null);
 
-		//TODO: cleanup 
+		// TODO: cleanup
 		Image backgroundImage = new ImageIcon(this.getClass().getResource(backgroundPath)).getImage();
 		Image scaledBackgroundImage = backgroundImage.getScaledInstance(900, 600, Image.SCALE_SMOOTH);
 		ImageIcon backgroundImageIcon = new ImageIcon(scaledBackgroundImage);
-		JLabel backgroundLabel = new JLabel(backgroundImageIcon);
+		backgroundLabel = new JLabel(backgroundImageIcon);
 		backgroundLabel.setBounds(0, 0, 900, 600);
 		backgroundLabel.setLocation(0, 0);
 		mainPanel.add(backgroundLabel);
 		mainPanel.setComponentZOrder(backgroundLabel, 0);
 
 		this.add(mainPanel, BorderLayout.CENTER);
-
-		// mainPanel.setBackground(Color.RED);
-
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(900, 600);
 
@@ -96,15 +93,13 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		cards_in_lib.setLocation(750, 350);
 		mainPanel.add(cards_in_lib);
 		mainPanel.setComponentZOrder(cards_in_lib, 0);
-		
-		
+
 		deck = new Deck("testDeck");
 
 		/*
 		 * 
-		 * Right click on any card: Shuffle card into library, put in graveyard, Put on
-		 * hand, Put on top of library, Reveal card to opponent, Flip card face down/up,
-		 * Tap/untap, add counter +/+ OR -/- OR loyalty OR custom -> popup skriv in själv
+		 * Right click on any card: Shuffle card into library, Put on top of library,
+		 * Tap/untap, add counter +/+ -/- loyalty custom -> popup skriv in själv
 		 * 
 		 */
 
@@ -225,11 +220,11 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
-		//mainPanel.add(zoomedImage);
+		// mainPanel.add(zoomedImage);
 
 		mainPanel.setComponentZOrder(library, 0);
 		mainPanel.setComponentZOrder(opp_library, 0);
-		//mainPanel.setComponentZOrder(zoomedImage, 0);
+		// mainPanel.setComponentZOrder(zoomedImage, 0);
 
 		this.setVisible(true);
 
@@ -257,7 +252,6 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		} catch (IOException iox) {
 			System.err.println("Can not load file");
 		}
-		
 
 		// resizing and placing image
 
@@ -295,6 +289,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		// change card spaces to "-" and deal with special characters here
 
+		String imageUrl = "";
 		String content = "";
 		URLConnection connection = null;
 		try {
@@ -306,25 +301,25 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 			}
 
 			scanner.close();
+
+			// only if card url was found, we try the regex finding the card link
+
+			Matcher m = Pattern.compile("imgsrc=\"//(static.cardmarket.com/img.*?jpg)").matcher(content);
+			if (m.find()) {
+				imageUrl = "https://" + m.group(1);
+
+			}
+
 		} catch (Exception ex) {
 			System.err.println("card wasn't found");
-		}
-
-		// fetching image url from html with regex
-		String imageUrl = "";
-		Matcher m = Pattern.compile("imgsrc=\"//(static.cardmarket.com/img.*?jpg)").matcher(content);
-		if (m.find()) {
-			imageUrl = "https://" + m.group(1);
 
 		}
 
 		return imageUrl;
 
 	}
-	
-	
 
-	public void newDeckPopup() {
+	public void nameYourDeckPopup() {
 
 		JTextField deckNameField = new JTextField(10);
 
@@ -335,116 +330,142 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		int nameOk = JOptionPane.showConfirmDialog(null, deckNamePanel, "New Deck", JOptionPane.OK_CANCEL_OPTION);
 
-		// TODO: instead of aborting, show error message if either text field is empty
-
 		if (nameOk == JOptionPane.OK_OPTION && !deckNameField.getText().isEmpty()) {
 
-			// we have named the deck!
-			// save the name and stuff
+			// All card fetching threads must have finished before we start initializing cards
 
-			addCardsPopup();
+			while (Thread.activeCount() > 2) {
+
+				// WAIT while all cards have loaded,
+				// display a loading bar where the loading strip is at full when count == 2
+				// main thread + popup box = 2 threads meaning all cards are fetched
+				System.out.println("loading while fetching cards, won't take more than 5 seconds");
+			}
+
+			System.out.println("finished loading");
+			
+			initSmallAndBigCards();
+
+			// TODO:
+			// save the deck to a file
+			// add the deck as playable option in the top menu
+
+		} else if (nameOk == JOptionPane.OK_OPTION && deckNameField.getText().isEmpty()) {
+
+			JOptionPane.showOptionDialog(Graphics.this, "Deck must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
+					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
+
+			nameYourDeckPopup();
+
+		} else if (nameOk == JOptionPane.CANCEL_OPTION) {
+
+			JOptionPane.showOptionDialog(Graphics.this, "Deck will not be saved", "Fail", JOptionPane.PLAIN_MESSAGE,
+					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
+
+			// clear the cards that were previously added
+			deck.clearDeck();
 
 		}
 
 	}
-	
-	
-	
-	 public class MyRunnable implements Runnable {
-	      private String textFromField;
-	      private int amountFromField;
-	      
-	      //constructor
-	      public MyRunnable(String textFromField, int amountFromField) {
-		         this.textFromField = textFromField;
-		         this.amountFromField = amountFromField;
-	      }
 
-	      public void run() {
-	    	  
-	    	 
-	    	  String cardToAddUrl;
-	    	  
-				try {
-					
-					 // first we check if it's a basic land, because
-			    	  // then we simply load one of our prepared images
-			    	  
-			    	  if(textFromField.equals("forest")) {
-			    		  cardToAddUrl = forest;
-			    	  }else if(textFromField.equals("mountain")) {
-			    		  cardToAddUrl = mountain;
-			    	  }else if(textFromField.equals("plains")) {
-			    		  cardToAddUrl = plains;
-			    	  }else if(textFromField.equals("swamp")) {
-			    		  cardToAddUrl = swamp;
-			    	  }else if(textFromField.equals("island")) {
-			    		  cardToAddUrl = island;
-			    	  }else {
-			    		// if not a basic land, fetch the card from the Internet. 
-			    		// This is where the exception would trigger if card doesn't exist
-							cardToAddUrl = fetchImageUrlFromCardName(textFromField);
-			    	  }
-					
-					
-					// adding the amount of the requested card
-					for (int i = 0; i < Integer.valueOf(amountFromField); i++) {
+	public class MyRunnable implements Runnable {
 
-						// setting properties to small images
-						// we do not set location(), because we don't want the card shown yet!
+		private String textFromField;
+		private int amountFromField;
 
-						//first we try to fetch the image from URL, if image doesn't exist then function breaks here
-						deck.addCard(new Card(textFromField, cardToAddUrl));
-						
+		// constructor
+		public MyRunnable(String textFromField, int amountFromField) {
+			this.textFromField = textFromField;
+			this.amountFromField = amountFromField;
+		}
 
-					}
+		public void run() {
 
-					// updating cards in library text
-					cards_in_lib.setText("Cards in library: " + deck.getNumberOfCards());
+			String cardToAddUrl;
 
-				} catch (Exception e) {
+			// first we check if it's a basic land, because
+			// then we simply load one of our prepared images
 
-					JOptionPane.showOptionDialog(Graphics.this, "Could not find card: " + textFromField, "Fail",
-							JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, null, "OK");
+			if (textFromField.equals("forest")) {
+				cardToAddUrl = forest;
+			} else if (textFromField.equals("mountain")) {
+				cardToAddUrl = mountain;
+			} else if (textFromField.equals("plains")) {
+				cardToAddUrl = plains;
+			} else if (textFromField.equals("swamp")) {
+				cardToAddUrl = swamp;
+			} else if (textFromField.equals("island")) {
+				cardToAddUrl = island;
+			} else {
+				// if not a basic land, fetch the card from the Internet.
+				// This is where the exception would trigger if card doesn't exist
+				cardToAddUrl = fetchImageUrlFromCardName(textFromField);
+			}
+
+			// if fetching URL from card name was successful!
+			if (!cardToAddUrl.equals("")) {
+
+				// adding the amount of the requested card
+				for (int i = 0; i < Integer.valueOf(amountFromField); i++) {
+
+					deck.addCard(new Card(textFromField + Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
+
 				}
-	      }
-	   }
-	 
-	public void initSmallAndBigCards() {
-		
-		Iterator<Card> iterator = deck.getCards().iterator(); 
-		
-		while (iterator.hasNext()) { 
-            Card cardToAdd = iterator.next(); 
-            
-            deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
-    		deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
-    		deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(Graphics.this);
-    		deckImageList.get(deckImageList.size() - 1).addMouseListener(Graphics.this);
-    		deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getName());
 
-    		// setting properties to the big image
-    		// we do not set location(), because we don't want the card shown yet
-    		// despite that, even though the location isn't set, the card is "still there" so the mouse 
-    		// events still triggers it. Therefore we set the bounds coordinates far outside the frame.
-    		deckBigImageList.add(getLabelFromUrl(cardToAdd.getUrl())[1]);
-    		deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getName());
-    		deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth*2, cardHeight*2);
-    		
-    		// adding the zoomed image AFTER small image so that the zoomed card appears on top of the normal card
-    		mainPanel.add(deckImageList.get(deckImageList.size() - 1));
-    		mainPanel.add(deckBigImageList.get(deckBigImageList.size() - 1));
-    		
-    		mainPanel.setComponentZOrder(deckImageList.get(deckImageList.size() - 1), 0);
-    		mainPanel.setComponentZOrder(deckBigImageList.get(deckBigImageList.size() - 1), 0);
-            
-        } 
+				// updating cards in library text
+				updateCardsInLibText();
+
+			} else {
+
+				JOptionPane.showOptionDialog(Graphics.this, "Could not find card: " + textFromField, "Fail",
+						JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, null, "OK");
+
+			}
+
+		}
+	}
+
+	public void updateCardsInLibText() {
+		cards_in_lib.setText("Cards in library: " + deck.getNumberOfCards());
+
+	}
+
+	public void initSmallAndBigCards() {
+
+		Iterator<Card> iterator = deck.getCards().iterator();
+
+		while (iterator.hasNext()) {
+			Card cardToAdd = iterator.next();
+
+			deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
+			deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
+			deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(Graphics.this);
+			deckImageList.get(deckImageList.size() - 1).addMouseListener(Graphics.this);
+			deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getName());
+
+			// setting properties to the big image
+			// we do not set location(), because we don't want the card shown yet
+			// despite that, even though the location isn't set, the card is "still there"
+			// so the mouse
+			// events still triggers it. Therefore we set the bounds coordinates far outside
+			// the frame.
+			deckBigImageList.add(getLabelFromUrl(cardToAdd.getUrl())[1]);
+			deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getName());
+			deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth * 2, cardHeight * 2);
+
+			// adding the zoomed image AFTER small image so that the zoomed card appears on
+			// top of the normal card
+			mainPanel.add(deckImageList.get(deckImageList.size() - 1));
+			mainPanel.add(deckBigImageList.get(deckBigImageList.size() - 1));
+
+			mainPanel.setComponentZOrder(deckImageList.get(deckImageList.size() - 1), 0);
+			mainPanel.setComponentZOrder(deckBigImageList.get(deckBigImageList.size() - 1), 0);
+
+		}
 
 		setVisible(true);
 	}
-	 
-	   
-	   
 
 	public void addCardsPopup() {
 
@@ -462,16 +483,32 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		int result = JOptionPane.showConfirmDialog(null, addCardsPanel, "Add card to deck",
 				JOptionPane.OK_CANCEL_OPTION);
 
-		//if click OK
+		// if click OK
 		if (result == JOptionPane.OK_OPTION && !cardNameField.getText().isEmpty()) {
-			
+
 			Runnable r = new MyRunnable(cardNameField.getText(), Integer.parseInt(amountField.getText()));
 			new Thread(r).start();
-			
+
 			// we start thread that searches for card, and continue with asking more cards
-			
+
 			addCardsPopup();
 
+		} else if (result == JOptionPane.OK_OPTION && cardNameField.getText().isEmpty()) {
+
+			JOptionPane.showOptionDialog(Graphics.this, "Card must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
+					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
+
+			addCardsPopup();
+
+		} else if (result == JOptionPane.CANCEL_OPTION) {
+
+			// here we wait for all threads to finish
+
+			
+
+			nameYourDeckPopup();
+
+			// else we just close, there's nothing to save
 		}
 
 	}
@@ -489,7 +526,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		System.err.println("didn't find label from cardname");
 		return null;
 	}
-	
+
 	public JLabel getBigImageFromCardName(String cardName) {
 
 		for (JLabel cardImage : deckBigImageList) {
@@ -504,8 +541,6 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		return null;
 	}
 
-
-
 	@Override
 	public void mouseDragged(MouseEvent e) {
 
@@ -515,11 +550,11 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 			zoomedImage.setLocation(2000, 2000);
 
-			int mouseX = (int) MouseInfo.getPointerInfo().getLocation().getX();
-			int mouseY = (int) MouseInfo.getPointerInfo().getLocation().getY();
+			int mouseX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - this.getX());
+			int mouseY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - this.getY());
 
 			// drag card from top of library
-			
+
 			if (enteredCard.equals("library") && deck.hasCards()) {
 
 				getImageFromCardName(deck.PeekTopCard().getName()).setLocation(mouseX - 40, mouseY - 70);
@@ -527,9 +562,9 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 			}
 
 			// move a card from outside of library
-			
+
 			if ((!enteredCard.equals("library"))) {
-				
+
 				getImageFromCardName(enteredCard).setLocation(mouseX - 40, mouseY - 70);
 
 			}
@@ -551,12 +586,8 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		if (enteredCard != null) {
 
-			
 			if (SwingUtilities.isRightMouseButton(e) && enteredCard.equals("library")) {
 				rightClickLibraryMenu.show(e.getComponent(), e.getX(), e.getY());
-				
-				//temporary init cards if right click on lib
-				initSmallAndBigCards();
 
 			}
 
@@ -579,7 +610,6 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		String enteredCard = e.getComponent().getName();
 
-		
 		if (enteredCard.equals("library") && !lastEntered.equals("library")) {
 
 			// we have drawn the top card from the library, so we remove it from library
@@ -603,20 +633,16 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 			// hover card outside of library
 			if (!enteredCard.equals("library")) {
-			
 
 				int enteredCardX = e.getComponent().getX();
 				int enteredCardY = e.getComponent().getY();
 
 				// for all big labels, we find the one with the right name
-				
+
 				zoomedImage = getBigImageFromCardName(enteredCard);
 				zoomedImage.setLocation(enteredCardX, enteredCardY);
-				
 
 				setVisible(true);
-				
-				
 
 			}
 
@@ -626,14 +652,13 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		
-		
+
 		String exitedCard = e.getComponent().getName();
 
 		if (exitedCard != null) {
 			zoomedImage.setLocation(2000, 2000);
 		}
-		
+
 	}
 
 	@Override
@@ -641,7 +666,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		if (e.getActionCommand().equals("Build new deck")) {
 
-			newDeckPopup();
+			addCardsPopup();
 		}
 
 	}

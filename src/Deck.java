@@ -17,6 +17,10 @@ public class Deck {
 		numberOfCards++;
 	}
 	
+	public void clearDeck() {
+		cards.clear();
+	}
+	
 	public Stack<Card> getCards() {
 		return cards;		
 	}
