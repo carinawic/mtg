@@ -4,7 +4,15 @@
 // import all			= Ctrl Shift O
 // show all functions	= Ctrl O
 
-
+/*
+ * TODO CARINA:
+ * 
+ * implement rotate image on click
+ * implement store and load deck in top menu
+ * sätt cardname till "forest" och hantera mouseentered med hashsträngen för objektet
+ * 
+ * 
+ * */
 
 
 /*
