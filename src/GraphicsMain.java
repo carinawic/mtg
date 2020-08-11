@@ -401,18 +401,17 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		if (nameOk == JOptionPane.OK_OPTION && !deckNameField.getText().isEmpty()) {
 
 			// All card fetching threads must have finished before we start initializing cards
-
+			
+			deck.setDeckName(deckNameField.getText());
+			FileHandler.storeDeck(deck);
+			
 			while (Thread.activeCount() > 2) {
-
-				// WAIT while all cards have loaded,
-				// display a loading bar where the loading strip is at full when count == 2
-				// main thread + popup box = 2 threads meaning all cards are fetched
-				System.out.println("loading while fetching cards, won't take more than 5 seconds");
+				//wait until all cards are fetched
 			}
 
 			System.out.println("finished loading");
 			
-			initSmallAndBigCards();
+			initSmallAndBigCards(deckNameField.getText());
 
 			// TODO:
 			// save the deck to a file
@@ -499,7 +498,12 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	}
 
-	public void initSmallAndBigCards() {
+	public void initSmallAndBigCards(String deckName) {
+		
+		// add check to see that deck exists
+		
+		
+		deck = FileHandler.fetchDeck(deckName);
 
 		Iterator<Card> iterator = deck.getCards().iterator();
 

@@ -30,4 +30,8 @@ public class Card {
 	public void setCounter(String counter) {
 		counters.add(counter);
 	}
+	
+	public int getId() {
+		return this.hashCode();
+	}
 }
