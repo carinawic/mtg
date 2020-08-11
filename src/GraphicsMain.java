@@ -1,4 +1,7 @@
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
@@ -6,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,7 +34,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
-public class Graphics extends JFrame implements MouseListener, MouseMotionListener, ActionListener {
+public class GraphicsMain extends JFrame implements MouseListener, MouseMotionListener, ActionListener {
 
 	private final String cardback = "https://gamepedia.cursecdn.com/mtgsalvation_gamepedia/f/f8/Magic_card_back.jpg";
 
@@ -65,8 +69,9 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	JLabel backgroundLabel;
 
-	public Graphics() {
+	public GraphicsMain() {
 
+		
 		super("Magic the gathering");
 
 		// System.setProperty("http.agent", "Chrome");
@@ -217,18 +222,71 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		library.setName("library");
 		opp_library.setName("opp_library");
+		
+		JLabel swampLabel = getLabelFromUrl(swamp)[0];
+		JLabel rotatedSwamp = getRotatedJLabelFromLabel(swampLabel);
+		
+		rotatedSwamp.setBounds(200, 200, cardHeight, cardWidth);
+		
+		mainPanel.add(rotatedSwamp);
+		
+		
 
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
 		// mainPanel.add(zoomedImage);
 
 		mainPanel.setComponentZOrder(library, 0);
+		mainPanel.setComponentZOrder(rotatedSwamp, 0);
 		mainPanel.setComponentZOrder(opp_library, 0);
 		// mainPanel.setComponentZOrder(zoomedImage, 0);
 
 		this.setVisible(true);
 
 	}
+	
+	public static BufferedImage convertToBufferedImage(Image image)
+	{
+	    BufferedImage newImage = new BufferedImage(
+	        image.getWidth(null), image.getHeight(null),
+	        BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = newImage.createGraphics();
+	    g.drawImage(image, 0, 0, null);
+	    g.dispose();
+	    return newImage;
+	}
+	
+	public JLabel getRotatedJLabelFromLabel(JLabel uprightLabel){
+
+		Image image = getImageFromJLabel(uprightLabel);
+		
+		BufferedImage bi = convertToBufferedImage(image);
+		
+		JLabel rotated = new JLabel() {
+			
+			@Override
+			public Dimension getPreferredSize() {
+				return new Dimension(cardWidth, cardHeight);
+			}
+			@Override
+			protected void paintComponent(Graphics g) {
+				super.paintComponent(g);
+				Graphics2D g2 = (Graphics2D) g;
+				g2.rotate(Math.PI / 2, cardHeight/2 , cardHeight/2);
+				
+				
+				g2.drawImage(bi, 0, 0, null);
+			}
+		};
+		
+		return rotated;
+
+	}
+	
+
+
+	
+
 
 	public JLabel getLabelFromPath(String imagePath) {
 
@@ -238,6 +296,16 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 		return label;
 
 	}
+	
+	public Image getImageFromJLabel(JLabel jLabel) {
+
+		Image image = ((ImageIcon) jLabel.getIcon()).getImage();
+
+		return image;
+
+	}
+	
+	
 
 	public JLabel[] getLabelFromUrl(String imageUrl) {
 		Image image = null;
@@ -352,14 +420,14 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		} else if (nameOk == JOptionPane.OK_OPTION && deckNameField.getText().isEmpty()) {
 
-			JOptionPane.showOptionDialog(Graphics.this, "Deck must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
+			JOptionPane.showOptionDialog(GraphicsMain.this, "Deck must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
 					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
 
 			nameYourDeckPopup();
 
 		} else if (nameOk == JOptionPane.CANCEL_OPTION) {
 
-			JOptionPane.showOptionDialog(Graphics.this, "Deck will not be saved", "Fail", JOptionPane.PLAIN_MESSAGE,
+			JOptionPane.showOptionDialog(GraphicsMain.this, "Deck will not be saved", "Fail", JOptionPane.PLAIN_MESSAGE,
 					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
 
 			// clear the cards that were previously added
@@ -418,7 +486,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 			} else {
 
-				JOptionPane.showOptionDialog(Graphics.this, "Could not find card: " + textFromField, "Fail",
+				JOptionPane.showOptionDialog(GraphicsMain.this, "Could not find card: " + textFromField, "Fail",
 						JOptionPane.PLAIN_MESSAGE, JOptionPane.QUESTION_MESSAGE, null, null, "OK");
 
 			}
@@ -440,8 +508,8 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 			deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
 			deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
-			deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(Graphics.this);
-			deckImageList.get(deckImageList.size() - 1).addMouseListener(Graphics.this);
+			deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(GraphicsMain.this);
+			deckImageList.get(deckImageList.size() - 1).addMouseListener(GraphicsMain.this);
 			deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getName());
 
 			// setting properties to the big image
@@ -495,7 +563,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 		} else if (result == JOptionPane.OK_OPTION && cardNameField.getText().isEmpty()) {
 
-			JOptionPane.showOptionDialog(Graphics.this, "Card must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
+			JOptionPane.showOptionDialog(GraphicsMain.this, "Card must have a name", "Fail", JOptionPane.PLAIN_MESSAGE,
 					JOptionPane.QUESTION_MESSAGE, null, null, "OK");
 
 			addCardsPopup();
@@ -673,7 +741,7 @@ public class Graphics extends JFrame implements MouseListener, MouseMotionListen
 
 	public static void main(String args[]) {
 
-		new Graphics();
+		new GraphicsMain();
 
 	}
 
