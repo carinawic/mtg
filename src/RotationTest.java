@@ -1,15 +1,14 @@
-import java.awt.Component;
+import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,6 +16,32 @@ import javax.swing.JPanel;
 
 public class RotationTest extends JFrame{
 
+	public RotationTest() throws IOException {
+
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		this.setLayout(new BorderLayout());
+		
+		
+		 
+		JPanel panel = new JPanel();
+		panel.setLayout(null);
+		
+		JLabel addLabel = getRotatedJLabelFromLabel(getJLabelFromPath());
+		
+		addLabel.setBounds(0, 0, 900, 600);
+		
+		panel.add(addLabel);
+
+		
+		this.add(panel, BorderLayout.CENTER);
+
+		this.setSize(900, 600);
+
+		this.setVisible(true);
+	}
+
+	
 	public JLabel getJLabelFromPath() throws MalformedURLException, IOException {
 
 		BufferedImage img = ImageIO.read(new URL(
@@ -30,30 +55,12 @@ public class RotationTest extends JFrame{
 
 	}
 	
-	public Image getImageFromJLabel(JLabel jLabel) {
-
-		Image image = ((ImageIcon) jLabel.getIcon()).getImage();
-
-		return image;
-
-	}
 	
-	
-	public RotationTest() throws IOException {
+	public JLabel getRotatedJLabelFromLabel(JLabel label) throws MalformedURLException, IOException {
+		
+		
+		Image image = ((ImageIcon) label.getIcon()).getImage();
 
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-
-		this.add(getRotatedJLabelFromImage());
-
-		this.pack();
-		this.setVisible(true);
-	}
-
-	public JLabel getRotatedJLabelFromImage() throws MalformedURLException, IOException {
-
-		JLabel labelFromPath = getJLabelFromPath();
-		Image image = getImageFromJLabel(labelFromPath);
 		BufferedImage bi = (BufferedImage) image;
 		
 		JLabel rotated = new JLabel() {

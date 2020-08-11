@@ -1,7 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Graphics2D;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MouseInfo;
 import java.awt.event.ActionEvent;
@@ -71,6 +71,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	public GraphicsMain() {
 
+		
 		super("Magic the gathering");
 
 		// System.setProperty("http.agent", "Chrome");
@@ -221,12 +222,22 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 		library.setName("library");
 		opp_library.setName("opp_library");
+		
+		JLabel swampLabel = getLabelFromUrl(swamp)[0];
+		JLabel rotatedSwamp = getRotatedJLabelFromLabel(swampLabel);
+		
+		rotatedSwamp.setBounds(200, 200, cardHeight, cardWidth);
+		
+		mainPanel.add(rotatedSwamp);
+		
+		
 
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
 		// mainPanel.add(zoomedImage);
 
 		mainPanel.setComponentZOrder(library, 0);
+		mainPanel.setComponentZOrder(rotatedSwamp, 0);
 		mainPanel.setComponentZOrder(opp_library, 0);
 		// mainPanel.setComponentZOrder(zoomedImage, 0);
 
@@ -234,22 +245,36 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	}
 	
-	public JLabel getRotatedJLabelFromImage(JLabel uprightLabel){
+	public static BufferedImage convertToBufferedImage(Image image)
+	{
+	    BufferedImage newImage = new BufferedImage(
+	        image.getWidth(null), image.getHeight(null),
+	        BufferedImage.TYPE_INT_ARGB);
+	    Graphics2D g = newImage.createGraphics();
+	    g.drawImage(image, 0, 0, null);
+	    g.dispose();
+	    return newImage;
+	}
+	
+	public JLabel getRotatedJLabelFromLabel(JLabel uprightLabel){
 
 		Image image = getImageFromJLabel(uprightLabel);
-		BufferedImage bi = (BufferedImage) image;
+		
+		BufferedImage bi = convertToBufferedImage(image);
 		
 		JLabel rotated = new JLabel() {
 			
 			@Override
 			public Dimension getPreferredSize() {
-				return new Dimension(bi.getWidth(null), bi.getHeight(null));
+				return new Dimension(cardWidth, cardHeight);
 			}
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				Graphics2D g2 = (Graphics2D) g;
-				g2.rotate(Math.PI / 2, bi.getWidth(null) / 2, bi.getHeight(null) / 2);
+				g2.rotate(Math.PI / 2, cardHeight/2 , cardHeight/2);
+				
+				
 				g2.drawImage(bi, 0, 0, null);
 			}
 		};
@@ -257,6 +282,11 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		return rotated;
 
 	}
+	
+
+
+	
+
 
 	public JLabel getLabelFromPath(String imagePath) {
 
