@@ -31,7 +31,7 @@ public class Card {
 		counters.add(counter);
 	}
 	
-	public int getId() {
-		return this.hashCode();
+	public String getId() {
+		return Integer.toString(this.hashCode());
 	}
 }
