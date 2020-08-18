@@ -15,9 +15,9 @@ import java.util.ArrayList;
  */
 public class FileHandler {
 
-	public static final String separator1 = ";";
-	public static final String separator2 = ":";
-	public static final String separator3 = ",";
+	public static final String separator1 = "separator1";
+	public static final String separator2 = "separator2";
+	public static final String separator3 = "separator3";
 
 	private final static String fileName = "decks.txt";
 
@@ -71,7 +71,7 @@ public class FileHandler {
 				sb.append(deck.toString());
 				i++;
 				if (i < numberOfNewDecks) {
-					sb.append(";");
+					sb.append(separator1);
 				}
 			}
 			pw.write(sb.toString());
@@ -108,7 +108,7 @@ public class FileHandler {
 		    br.close();
 		    
 		    for(String d:stringDecks) {
-				String[] split = d.split("|");
+				String[] split = d.split(separator1);
 				
 				//TODO: remove test
 				System.out.println(split[0]);
@@ -118,7 +118,7 @@ public class FileHandler {
 		    	
 				ArrayList<Card> cards = new ArrayList<Card>();
 				
-				String[] stringCards = split[1].split("?");
+				String[] stringCards = split[1].split(separator2);
 				
 				//TODO: remove test
 				for (String c : stringCards) {
@@ -126,7 +126,7 @@ public class FileHandler {
 				}
 
 				for(String c: stringCards) {
-		    		split = c.split(";");
+		    		split = c.split(separator3);
 					cards.add(new Card(split[0],split[1]));
 					
 					//TODO: remove test

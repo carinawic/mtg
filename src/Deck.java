@@ -95,13 +95,13 @@ public class Deck {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(deckName+"|");
+		sb.append(deckName+FileHandler.separator1);
 		int i = 0;
 		for(Card card:cards) {
-			sb.append(card.getName()+";"+card.getUrl());
+			sb.append(card.getName()+FileHandler.separator3+card.getUrl());
 			i++;
 			if(i < numberOfCards) {
-				sb.append("?");
+				sb.append(FileHandler.separator2);
 			}
 		}
 		return sb.toString();
