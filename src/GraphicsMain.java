@@ -477,7 +477,11 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 				// adding the amount of the requested card
 				for (int i = 0; i < Integer.valueOf(amountFromField); i++) {
 
-					deck.addCard(new Card(textFromField + Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
+					//deck.addCard(new Card(textFromField + Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
+
+					// Jag tog bort inkrementen på kortnamnet
+					// kortet ska istället heta det riktiga namnet t.ex "forest" och vara unikt mha "id" istället.
+					deck.addCard(new Card(textFromField, cardToAddUrl));
 
 				}
 
