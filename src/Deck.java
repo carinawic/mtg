@@ -1,3 +1,4 @@
+import java.io.File;
 import java.util.Collections;
 import java.util.Stack;
 
@@ -91,17 +92,16 @@ public class Deck {
 		return numberOfCards > 0;
 	}
 	
-	//SYNTAX deckName:cardName1,cardUrl1.cardName2,cardUrl2...cardNameN,cardUrlN
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(deckName+":");
+		sb.append(deckName+FileHandler.separator1);
 		int i = 0;
 		for(Card card:cards) {
-			sb.append(card.getName()+","+card.getUrl());
+			sb.append(card.getName()+FileHandler.separator3+card.getUrl());
 			i++;
 			if(i < numberOfCards) {
-				sb.append(".");
+				sb.append(FileHandler.separator2);
 			}
 		}
 		return sb.toString();

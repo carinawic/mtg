@@ -104,7 +104,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		/*
 		 * 
 		 * Right click on any card: Shuffle card into library, Put on top of library,
-		 * Tap/untap, add counter +/+ -/- loyalty custom -> popup skriv in själv
+		 * Tap/untap, add counter +/+ -/- loyalty custom -> popup
 		 * 
 		 */
 
@@ -403,11 +403,12 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			// All card fetching threads must have finished before we start initializing cards
 			
 			deck.setDeckName(deckNameField.getText());
-			FileHandler.storeDeck(deck);
 			
 			while (Thread.activeCount() > 2) {
 				//wait until all cards are fetched
 			}
+			
+			FileHandler.storeDeck(deck);
 
 			System.out.println("finished loading");
 			
