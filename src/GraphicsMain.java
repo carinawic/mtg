@@ -511,8 +511,13 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 		Iterator<Card> iterator = deck.getCards().iterator();
 
+		System.out.println("are there cards in the lib?");
+
+		
 		while (iterator.hasNext()) {
 			Card cardToAdd = iterator.next();
+			
+			System.out.println("itinializing " + cardToAdd.getName() + " " + cardToAdd.getUrl());
 
 			deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
 			deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
