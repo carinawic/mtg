@@ -52,6 +52,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	private ArrayList<JLabel> deckImageList = new ArrayList<JLabel>();
 	private ArrayList<JLabel> deckBigImageList = new ArrayList<JLabel>();
+	private ArrayList<JLabel> deckRotatedImageList = new ArrayList<JLabel>();
 
 	private Deck deck;
 
@@ -223,23 +224,12 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		library.setName("library");
 		opp_library.setName("opp_library");
 		
-		JLabel swampLabel = getLabelFromUrl(swamp)[0];
-		JLabel rotatedSwamp = getRotatedJLabelFromLabel(swampLabel);
-		
-		rotatedSwamp.setBounds(200, 200, cardHeight, cardWidth);
-		
-		mainPanel.add(rotatedSwamp);
-		
-		
 
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
-		// mainPanel.add(zoomedImage);
 
 		mainPanel.setComponentZOrder(library, 0);
-		mainPanel.setComponentZOrder(rotatedSwamp, 0);
 		mainPanel.setComponentZOrder(opp_library, 0);
-		// mainPanel.setComponentZOrder(zoomedImage, 0);
 
 		this.setVisible(true);
 
@@ -279,14 +269,45 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			}
 		};
 		
+		this.setVisible(true);
+		
 		return rotated;
 
 	}
 	
-
-
 	
-
+	public JLabel getRotatedLabelFromId(String id) {
+		for(JLabel rotatedLabel : deckRotatedImageList) {
+			if(rotatedLabel.getName().contains(id)) {
+				
+				return rotatedLabel;
+			}
+		}
+		System.err.println("didn't find any rotated label from label id");
+		return null;
+	}
+	
+	public JLabel getBigLabelFromRotatedId(String id) {
+		for(JLabel bigImage : deckBigImageList) {
+			if(id.contains(bigImage.getName())) {
+				
+				return bigImage;
+			}
+		}
+		System.err.println("didn't find any rotated label from label id");
+		return null;
+	}
+	
+	public JLabel getStraightLabelFromRotatedId(String id) {
+		for(JLabel straightLabel : deckImageList) {
+			if(id.contains(straightLabel.getName())) {
+				
+				return straightLabel;
+			}
+		}
+		System.err.println("didn't find any straight label from rotated label id");
+		return null;
+	}
 
 	public JLabel getLabelFromPath(String imagePath) {
 
@@ -414,9 +435,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			
 			initSmallAndBigCards(deckNameField.getText());
 
-			// TODO:
-			// save the deck to a file
-			// add the deck as playable option in the top menu
 
 		} else if (nameOk == JOptionPane.OK_OPTION && deckNameField.getText().isEmpty()) {
 
@@ -479,8 +497,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 					//deck.addCard(new Card(textFromField + Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
 
-					// Jag tog bort inkrementen på kortnamnet
-					// kortet ska istället heta det riktiga namnet t.ex "forest" och vara unikt mha "id" istället.
 					deck.addCard(new Card(textFromField, cardToAddUrl));
 
 				}
@@ -527,15 +543,28 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			// so the mouse
 			// events still triggers it. Therefore we set the bounds coordinates far outside
 			// the frame.
+			
+			
+			deckRotatedImageList.add(getRotatedJLabelFromLabel(getLabelFromUrl(cardToAdd.getUrl())[0]));
+			deckRotatedImageList.get(deckRotatedImageList.size() - 1).setName(cardToAdd.getId() + "rotated");
+			deckRotatedImageList.get(deckRotatedImageList.size() - 1).addMouseMotionListener(GraphicsMain.this);
+			deckRotatedImageList.get(deckRotatedImageList.size() - 1).addMouseListener(GraphicsMain.this);
+			deckRotatedImageList.get(deckRotatedImageList.size() - 1).setBounds(2000, 2000, cardHeight, cardWidth);
+			
 			deckBigImageList.add(getLabelFromUrl(cardToAdd.getUrl())[1]);
 			deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getId());
 			deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth * 2, cardHeight * 2);
 
+			
+			
+			
 			// adding the zoomed image AFTER small image so that the zoomed card appears on
 			// top of the normal card
+			mainPanel.add(deckRotatedImageList.get(deckRotatedImageList.size() - 1));
 			mainPanel.add(deckImageList.get(deckImageList.size() - 1));
 			mainPanel.add(deckBigImageList.get(deckBigImageList.size() - 1));
 
+			mainPanel.setComponentZOrder(deckRotatedImageList.get(deckRotatedImageList.size() - 1), 0);
 			mainPanel.setComponentZOrder(deckImageList.get(deckImageList.size() - 1), 0);
 			mainPanel.setComponentZOrder(deckBigImageList.get(deckBigImageList.size() - 1), 0);
 
@@ -590,31 +619,39 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	}
 
-	public JLabel getImageFromCardName(String cardName) {
+	public JLabel getLabelFromId(String id) {
 
 		for (JLabel cardImage : deckImageList) {
-			if (cardImage.getName().equals(cardName)) {
+			if (cardImage.getName().equals(id)) {
 
 				return cardImage;
 			}
 		}
 
 		// if card name wasn't found in deck, return null
-		System.err.println("didn't find label from cardname");
+		System.err.println("didn't find label from id");
 		return null;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 
-	public JLabel getBigImageFromCardName(String cardName) {
+	public JLabel getBigImageFromId(String id) {
 
 		for (JLabel cardImage : deckBigImageList) {
-			if (cardImage.getName().equals(cardName)) {
+			if (cardImage.getName().equals(id)) {
 
 				return cardImage;
 			}
 		}
 
 		// if card name wasn't found in deck, return null
-		System.err.println("didn't find label from cardname");
+		System.err.println("didn't find label from id");
 		return null;
 	}
 
@@ -634,15 +671,20 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 			if (enteredCard.equals("library") && deck.hasCards()) {
 
-				getImageFromCardName(deck.PeekTopCard().getId()).setLocation(mouseX - 40, mouseY - 70);
+				getLabelFromId(deck.PeekTopCard().getId()).setLocation(mouseX - 40, mouseY - 70);
 
 			}
 
 			// move a card from outside of library
 
-			if ((!enteredCard.equals("library"))) {
+			if ((!enteredCard.equals("library") && (!enteredCard.contains("rotated")))) {
 
-				getImageFromCardName(enteredCard).setLocation(mouseX - 40, mouseY - 70);
+				getLabelFromId(enteredCard).setLocation(mouseX - 40, mouseY - 70);
+
+			}
+			if ((!enteredCard.equals("library") && (enteredCard.contains("rotated")))) {
+
+				getRotatedLabelFromId(enteredCard).setLocation(mouseX - 40, mouseY - 70);
 
 			}
 
@@ -663,14 +705,34 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 		if (enteredCard != null) {
 
+			//we right clicked the library
 			if (SwingUtilities.isRightMouseButton(e) && enteredCard.equals("library")) {
 				rightClickLibraryMenu.show(e.getComponent(), e.getX(), e.getY());
 
 			}
 
-			if (SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library")) {
+			// we right clicked a card other than library
+			if (SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library") && !enteredCard.equals("opp_library")) {
 				rightClickCardMenu.show(e.getComponent(), e.getX(), e.getY());
 
+			}
+			
+			// we rotate a card
+			if (!SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library") && !enteredCard.equals("opp_library") && !enteredCard.contains("rotated")) {
+
+
+				getRotatedLabelFromId(enteredCard).setLocation(e.getComponent().getX(), e.getComponent().getY());
+				e.getComponent().setLocation(4000, 4000);
+
+			}
+			//we untap a rotated card
+			if (!SwingUtilities.isRightMouseButton(e) && enteredCard.contains("rotated")) {
+
+
+				getStraightLabelFromRotatedId(enteredCard).setLocation(e.getComponent().getX(), e.getComponent().getY());
+				e.getComponent().setLocation(4000, 4000);
+
+				
 			}
 
 		}
@@ -709,14 +771,30 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			lastEntered = e.getComponent().getName();
 
 			// hover card outside of library
-			if (!enteredCard.equals("library")) {
+			if (!enteredCard.equals("library") && !enteredCard.contains("rotated")) {
 
 				int enteredCardX = e.getComponent().getX();
 				int enteredCardY = e.getComponent().getY();
 
 				// for all big labels, we find the one with the right name
 
-				zoomedImage = getBigImageFromCardName(enteredCard);
+				zoomedImage = getBigImageFromId(enteredCard);
+				zoomedImage.setLocation(enteredCardX, enteredCardY);
+
+				setVisible(true);
+
+			}
+			
+			if (!enteredCard.equals("library") && enteredCard.contains("rotated")) {
+
+				int enteredCardX = e.getComponent().getX();
+				int enteredCardY = e.getComponent().getY();
+
+				// for all big labels, we find the one with the right name
+
+				//find big image with same name
+				
+				zoomedImage = getBigLabelFromRotatedId(enteredCard);
 				zoomedImage.setLocation(enteredCardX, enteredCardY);
 
 				setVisible(true);
