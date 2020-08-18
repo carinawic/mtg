@@ -410,7 +410,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			
 			FileHandler.storeDeck(deck);
 
-			System.out.println("finished loading");
+			//System.out.println("finished loading");
 			
 			initSmallAndBigCards(deckNameField.getText());
 
@@ -511,20 +511,15 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		deck = FileHandler.fetchDeck(deckName);
 
 		Iterator<Card> iterator = deck.getCards().iterator();
-
-		System.out.println("are there cards in the lib?");
-
 		
 		while (iterator.hasNext()) {
 			Card cardToAdd = iterator.next();
 			
-			System.out.println("itinializing " + cardToAdd.getName() + " " + cardToAdd.getUrl());
-
 			deckImageList.add(getLabelFromUrl(cardToAdd.getUrl())[0]);
 			deckImageList.get(deckImageList.size() - 1).setBounds(2000, 2000, cardWidth, cardHeight);
 			deckImageList.get(deckImageList.size() - 1).addMouseMotionListener(GraphicsMain.this);
 			deckImageList.get(deckImageList.size() - 1).addMouseListener(GraphicsMain.this);
-			deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getName());
+			deckImageList.get(deckImageList.size() - 1).setName(cardToAdd.getId());
 
 			// setting properties to the big image
 			// we do not set location(), because we don't want the card shown yet
@@ -533,7 +528,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			// events still triggers it. Therefore we set the bounds coordinates far outside
 			// the frame.
 			deckBigImageList.add(getLabelFromUrl(cardToAdd.getUrl())[1]);
-			deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getName());
+			deckBigImageList.get(deckBigImageList.size() - 1).setName(cardToAdd.getId());
 			deckBigImageList.get(deckBigImageList.size() - 1).setBounds(2000, 2000, cardWidth * 2, cardHeight * 2);
 
 			// adding the zoomed image AFTER small image so that the zoomed card appears on
@@ -639,7 +634,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 			if (enteredCard.equals("library") && deck.hasCards()) {
 
-				getImageFromCardName(deck.PeekTopCard().getName()).setLocation(mouseX - 40, mouseY - 70);
+				getImageFromCardName(deck.PeekTopCard().getId()).setLocation(mouseX - 40, mouseY - 70);
 
 			}
 
