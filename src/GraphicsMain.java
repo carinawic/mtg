@@ -69,6 +69,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	String lastEntered = "";
 
 	JLabel backgroundLabel;
+	JMenuItem Play, Delete;
 
 	public GraphicsMain() {
 
@@ -112,8 +113,9 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		// menu items
 
 		JMenu Decks, Counters, Extra;
-		JMenuItem Build, Edit, Shuffle, Search, Look_top, Look_top_X, Draw_X, Play_revieled, Counterbrick, Experience,
-				Poison, Custom, Fetch, Deck_1, Deck_2, Play, Deck_1_Play, Deck_2_Play, Show_card;
+		JMenuItem Build, Shuffle, Search, Look_top, Look_top_X, Draw_X, Play_revieled, Counterbrick, Experience,
+				Poison, Custom, Fetch, Show_card;
+		
 
 		JMenuBar menubar = new JMenuBar();
 
@@ -121,22 +123,11 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		Counters = new JMenu("Counters");
 		Extra = new JMenu("Extra");
 
-		Deck_1_Play = new JMenuItem("Deck_1");
-		Deck_1_Play.addActionListener(this);
-
-		Deck_2_Play = new JMenuItem("Deck_2");
-		Deck_2_Play.addActionListener(this);
-
 		Build = new JMenuItem("Build new deck");
 		Build.addActionListener(this);
 
-		Edit = new JMenu("Edit deck");
-
-		Deck_1 = new JMenuItem("Deck_1");
-		Deck_1.addActionListener(this);
-
-		Deck_2 = new JMenuItem("Deck_2");
-		Deck_2.addActionListener(this);
+		Delete = new JMenu("Delete deck");
+		Delete.addActionListener(this);
 
 		Play = new JMenu("Play");
 
@@ -182,16 +173,24 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		menubar.add(Decks);
 		menubar.add(Counters);
 		menubar.add(Extra);
-
-		Play.add(Deck_1_Play);
-		Play.add(Deck_2_Play);
+		
+		for(Deck loadDeck : FileHandler.fetchAllDecks()) {
+			JMenuItem loadDeckMenuItem = new JMenuItem(loadDeck.getDeckName());
+			loadDeckMenuItem.addActionListener(this);
+			Play.add(loadDeckMenuItem);
+		}
+		
 
 		Decks.add(Build);
-		Decks.add(Edit);
+		Decks.add(Delete);
 
-		Edit.add(Deck_1);
-		Edit.add(Deck_2);
-
+		for(Deck loadDeck : FileHandler.fetchAllDecks()) {
+			JMenuItem deleteDeckMenuItem = new JMenuItem("- " + loadDeck.getDeckName());
+			deleteDeckMenuItem.addActionListener(this);
+			Delete.add(deleteDeckMenuItem);
+		}
+		
+		
 		rightClickLibraryMenu.add(Shuffle);
 		rightClickLibraryMenu.add(Search);
 		rightClickLibraryMenu.add(Look_top);
@@ -430,7 +429,17 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			}
 			
 			FileHandler.storeDeck(deck);
+			
+			JMenuItem loadDeckMenuItem = new JMenuItem(deckNameField.getText());
+			loadDeckMenuItem.addActionListener(this);
+			Play.add(loadDeckMenuItem);
 
+			JMenuItem deleteDeckMenuItem = new JMenuItem("- " + deckNameField.getText());
+			loadDeckMenuItem.addActionListener(this);
+			Delete.add(deleteDeckMenuItem);
+
+			
+			
 			//System.out.println("finished loading");
 			
 			initSmallAndBigCards(deckNameField.getText());
@@ -527,6 +536,21 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		deck = FileHandler.fetchDeck(deckName);
 
 		Iterator<Card> iterator = deck.getCards().iterator();
+		
+		
+		for(int i=0; i<deckImageList.size();i++) {
+			//hide all old cards
+			System.out.println("hiding old cards");
+			deckImageList.get(i).setVisible(false);
+			deckRotatedImageList.get(i).setVisible(false);
+			deckBigImageList.get(i).setVisible(false);
+			
+		}
+		//clear the lists
+		deckImageList.clear();
+		deckRotatedImageList.clear();
+		deckBigImageList.clear();
+		
 		
 		while (iterator.hasNext()) {
 			Card cardToAdd = iterator.next();
@@ -819,9 +843,45 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
+
 		if (e.getActionCommand().equals("Build new deck")) {
 
 			addCardsPopup();
+		}
+		else if (e.getActionCommand().equals("Experience")) {
+
+			System.out.println("Experience");
+		}
+		else if (e.getActionCommand().equals("Poison")) {
+
+			System.out.println("Poison");
+		}
+		else if (e.getActionCommand().equals("Custom")) {
+
+			System.out.println("Custom");
+		}else if (e.getActionCommand().equals("Fetch card from outside game")) {
+
+			System.out.println("Fetch card");
+		}else{
+			for(Deck loadDeck : FileHandler.fetchAllDecks()) {
+				if(e.getActionCommand().equals(loadDeck.getDeckName())) {
+					System.out.println("playing " + loadDeck.getDeckName());
+
+					//clear board
+					initSmallAndBigCards(loadDeck.getDeckName());
+					updateCardsInLibText();
+
+					
+				}else if(e.getActionCommand().contains(loadDeck.getDeckName())) {
+					System.out.println("deleting " + loadDeck.getDeckName());
+					
+					//FileHandler.deleteDeck(loadDeck.getDeckName());
+					//update top menu lists
+					
+				}
+				
+			}
+			
 		}
 
 	}
