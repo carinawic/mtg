@@ -4,6 +4,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.MouseInfo;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -81,25 +82,25 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		this.setLayout(new BorderLayout());
 
 		mainPanel.setLayout(null);
+		
+		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+		setBounds(0, 0, (int) dim.getWidth(), (int) dim.getHeight());
+		setLocationRelativeTo(null);
+
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 
 		// TODO: cleanup
 		Image backgroundImage = new ImageIcon(this.getClass().getResource(backgroundPath)).getImage();
-		Image scaledBackgroundImage = backgroundImage.getScaledInstance(900, 600, Image.SCALE_SMOOTH);
+		Image scaledBackgroundImage = backgroundImage.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
 		ImageIcon backgroundImageIcon = new ImageIcon(scaledBackgroundImage);
 		backgroundLabel = new JLabel(backgroundImageIcon);
-		backgroundLabel.setBounds(0, 0, 900, 600);
+		backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
 		backgroundLabel.setLocation(0, 0);
 		mainPanel.add(backgroundLabel);
 		mainPanel.setComponentZOrder(backgroundLabel, 0);
 
 		this.add(mainPanel, BorderLayout.CENTER);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.setSize(900, 600);
-
-		cards_in_lib.setBounds(600, 600, 100, 40);
-		cards_in_lib.setLocation(750, 350);
-		mainPanel.add(cards_in_lib);
-		mainPanel.setComponentZOrder(cards_in_lib, 0);
 
 		deck = new Deck("testDeck");
 
@@ -214,8 +215,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		library = getLabelFromUrl(cardback)[0];
 		opp_library = getLabelFromUrl(cardback)[0];
 
-		library.setBounds(770, 400, cardWidth, cardHeight);
-		opp_library.setBounds(50, 50, cardWidth, cardHeight);
+		library.setBounds(this.getWidth()/15*13, this.getHeight()/15*10, cardWidth, cardHeight);
+		opp_library.setBounds(this.getWidth()/15, this.getHeight()/10, cardWidth, cardHeight);
 
 		library.addMouseMotionListener(this);
 		library.addMouseListener(this);
@@ -224,6 +225,13 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		opp_library.setName("opp_library");
 		
 
+
+		cards_in_lib.setBounds(this.getWidth()/15*13, this.getHeight()/15*8, 100, 40);
+		cards_in_lib.setLocation(this.getWidth()/15*13, this.getHeight()/15*9);
+		mainPanel.add(cards_in_lib);
+		mainPanel.setComponentZOrder(cards_in_lib, 0);
+		
+		
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
 
