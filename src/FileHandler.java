@@ -110,28 +110,16 @@ public class FileHandler {
 		    for(String d:stringDecks) {
 				String[] split = d.split(separator1);
 				
-				//TODO: remove test
-				System.out.println(split[0]);
-				System.out.println(split[1]);
-
 		    	String deckName = split[0];
 		    	
 				ArrayList<Card> cards = new ArrayList<Card>();
 				
 				String[] stringCards = split[1].split(separator2);
 				
-				//TODO: remove test
-				for (String c : stringCards) {
-					System.out.println(c);
-				}
-
 				for(String c: stringCards) {
 		    		split = c.split(separator3);
 					cards.add(new Card(split[0],split[1]));
 					
-					//TODO: remove test
-					System.out.println(split[0]);
-					System.out.println(split[1]);
 		    	}
 		    	
 		    	Deck deck = new Deck(deckName);
