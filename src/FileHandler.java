@@ -3,78 +3,44 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.io.FileOutputStream;
 
-/*
- * SYNTAX FOR DECK STORAGE 
- * deckName1:cardName1,cardUrl1.cardName2,cardUrl2...cardNameN,cardUrlN
- * deckName2:cardName1,cardUrl1.cardName2,cardUrl2...cardNameN,cardUrlN
- * .
- * .
- * .
- * deckNameN:cardName1,cardUrl1.cardName2,cardUrl2...cardNameN,cardUrlN
- */
 public class FileHandler {
 
+	// Separate deck name and cards.
 	public static final String separator1 = "separator1";
+	// Separate cards.
 	public static final String separator2 = "separator2";
+	// Separate card name and url.
 	public static final String separator3 = "separator3";
+	// Separate decks.
+	public static final String separator4 = "separator4";
 
 	private final static String fileName = "decks.txt";
 
 	public static void storeDeck(Deck deck) {
-		try {
-			PrintWriter pw = new PrintWriter(fileName);
 
+		try {
 			ArrayList<Deck> oldDecks = fetchAllDecks();
-			if (oldDecks != null) {
+
+			PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+
+			if (!oldDecks.isEmpty()) {
 				StringBuilder sb = new StringBuilder();
 				int i = 0;
-				int numberOfDecks = oldDecks.size();
 				for (Deck d : oldDecks) {
 					sb.append(d.toString());
-					i++;
-					if (i < numberOfDecks) {
-						sb.append("\n");
+					if (i < oldDecks.size()) {
+						sb.append(separator4);
 					}
+					i++;
 				}
 				sb.append(deck.toString());
 				pw.write(sb.toString());
 			} else {
 				pw.write(deck.toString());
 			}
-			pw.close();
-		} catch (IOException e) {
-			System.err.println(e);
-		}
-	}
-
-	public static void storeDecks(Deck[] decks) {
-		try {
-			StringBuilder sb = new StringBuilder();
-			PrintWriter pw = new PrintWriter(fileName);
-
-			ArrayList<Deck> oldDecks = fetchAllDecks();
-			if (oldDecks != null) {
-				int i = 0;
-				int numberOfOldDecks = oldDecks.size();
-				for (Deck deck : oldDecks) {
-					sb.append(deck.toString());
-					i++;
-					if (i < numberOfOldDecks) {
-						sb.append("\n");
-					}
-				}
-			}
-			int numberOfNewDecks = decks.length;
-			int i = 0;
-			for (Deck deck : decks) {
-				sb.append(deck.toString());
-				i++;
-				if (i < numberOfNewDecks) {
-					sb.append(separator1);
-				}
-			}
-			pw.write(sb.toString());
+			System.out.println("FileHandler stored: " + deck.toString() + "\n");
 			pw.close();
 		} catch (IOException e) {
 			System.err.println(e);
@@ -84,8 +50,12 @@ public class FileHandler {
 	public static Deck fetchDeck(String deckName) {
 		ArrayList<Deck> allDecks = fetchAllDecks();
 		if (allDecks != null) {
-			for(Deck deck:allDecks) {
-				if(deck.getDeckName().equals(deckName)) {
+			for (Deck deck : allDecks) {
+				if (deck.getDeckName().equals(deckName)) {
+
+					// DEBUG
+					System.out.println("FileHandler returned: " + deck.toString() + "\n");
+
 					return deck;
 				}
 			}
@@ -96,42 +66,49 @@ public class FileHandler {
 	public static ArrayList<Deck> fetchAllDecks() {
 		try {
 			ArrayList<Deck> decks = new ArrayList<Deck>();
-			
-			ArrayList<String> stringDecks = new ArrayList<String>();
-			
+
 			BufferedReader br = new BufferedReader(new FileReader(fileName));
-			String deckString = br.readLine();
-		    while (deckString != null) {
-		        stringDecks.add(deckString);
-		        deckString = br.readLine();
-		    }
-		    br.close();
-		    
-		    for(String d:stringDecks) {
+			StringBuilder sb = new StringBuilder();
+			String line = br.readLine();
+			while (line != null) {
+				sb.append(line);
+				line = br.readLine();
+			}
+			br.close();
+
+			String[] stringDecks = sb.toString().split(FileHandler.separator4);
+
+			for (String d : stringDecks) {
 				String[] split = d.split(separator1);
-				
-		    	String deckName = split[0];
-		    	
+
+				String deckName = split[0];
+
 				ArrayList<Card> cards = new ArrayList<Card>();
-				
+
 				String[] stringCards = split[1].split(separator2);
-				
-				for(String c: stringCards) {
-		    		split = c.split(separator3);
-					cards.add(new Card(split[0],split[1]));
-					
-		    	}
-		    	
-		    	Deck deck = new Deck(deckName);
-		    	for(Card card:cards) {
-		    		deck.addCard(card);
-		    	}
-		    	decks.add(deck);
-		    }
-		    return decks;
+
+				for (String c : stringCards) {
+					split = c.split(separator3);
+					cards.add(new Card(split[0], split[1]));
+
+				}
+
+				Deck deck = new Deck(deckName);
+				for (Card card : cards) {
+					deck.addCard(card);
+				}
+				decks.add(deck);
+			}
+
+			System.out.println("FileHandler fetched:");
+			for (Deck d : decks) {
+				System.out.println(d.toString() + "\n");
+			}
+
+			return decks;
 		} catch (IOException e) {
 			System.err.println(e);
 		}
-		return null;
+		return new ArrayList<Deck>();
 	}
 }

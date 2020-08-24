@@ -52,9 +52,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	private final int cardWidth = 63;
 	private JLabel cards_in_lib = new JLabel("Cards in library: 0");
 
-	
 	private Stack<Card> allCardsStack = new Stack<Card>();
-	
+
 	private Deck deck;
 
 	private JPopupMenu rightClickLibraryMenu = new JPopupMenu();
@@ -72,7 +71,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	public GraphicsMain() {
 
-		
 		super("Magic the gathering");
 
 		// System.setProperty("http.agent", "Chrome");
@@ -80,16 +78,17 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		this.setLayout(new BorderLayout());
 
 		mainPanel.setLayout(null);
-		
+
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds(0, 0, (int) dim.getWidth(), (int) dim.getHeight());
 		setLocationRelativeTo(null);
 
-		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 		// TODO: cleanup
 		Image backgroundImage = new ImageIcon(this.getClass().getResource(backgroundPath)).getImage();
-		Image scaledBackgroundImage = backgroundImage.getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
+		Image scaledBackgroundImage = backgroundImage.getScaledInstance(this.getWidth(), this.getHeight(),
+				Image.SCALE_SMOOTH);
 		ImageIcon backgroundImageIcon = new ImageIcon(scaledBackgroundImage);
 		backgroundLabel = new JLabel(backgroundImageIcon);
 		backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
@@ -113,9 +112,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		// menu items
 
 		JMenu Decks, Counters, Extra;
-		JMenuItem Build, Shuffle, Search, Look_top, Look_top_X, Draw_X, Play_revieled, Counterbrick, Experience,
-				Poison, Custom, Fetch, Show_card;
-		
+		JMenuItem Build, Shuffle, Search, Look_top, Look_top_X, Draw_X, Play_revieled, Counterbrick, Experience, Poison,
+				Custom, Fetch, Show_card;
 
 		JMenuBar menubar = new JMenuBar();
 
@@ -173,24 +171,22 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		menubar.add(Decks);
 		menubar.add(Counters);
 		menubar.add(Extra);
-		
-		for(Deck loadDeck : FileHandler.fetchAllDecks()) {
+
+		for (Deck loadDeck : FileHandler.fetchAllDecks()) {
 			JMenuItem loadDeckMenuItem = new JMenuItem(loadDeck.getDeckName());
 			loadDeckMenuItem.addActionListener(this);
 			Play.add(loadDeckMenuItem);
 		}
-		
 
 		Decks.add(Build);
 		Decks.add(Delete);
 
-		for(Deck loadDeck : FileHandler.fetchAllDecks()) {
+		for (Deck loadDeck : FileHandler.fetchAllDecks()) {
 			JMenuItem deleteDeckMenuItem = new JMenuItem("- " + loadDeck.getDeckName());
 			deleteDeckMenuItem.addActionListener(this);
 			Delete.add(deleteDeckMenuItem);
 		}
-		
-		
+
 		rightClickLibraryMenu.add(Shuffle);
 		rightClickLibraryMenu.add(Search);
 		rightClickLibraryMenu.add(Look_top);
@@ -214,23 +210,20 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		library = getLabelFromUrl(cardback)[0];
 		opp_library = getLabelFromUrl(cardback)[0];
 
-		library.setBounds(this.getWidth()/15*13, this.getHeight()/15*10, cardWidth, cardHeight);
-		opp_library.setBounds(this.getWidth()/15, this.getHeight()/10, cardWidth, cardHeight);
+		library.setBounds(this.getWidth() / 15 * 13, this.getHeight() / 15 * 10, cardWidth, cardHeight);
+		opp_library.setBounds(this.getWidth() / 15, this.getHeight() / 10, cardWidth, cardHeight);
 
 		library.addMouseMotionListener(this);
 		library.addMouseListener(this);
 
 		library.setName("library");
 		opp_library.setName("opp_library");
-		
 
-
-		cards_in_lib.setBounds(this.getWidth()/15*13, this.getHeight()/15*8, 100, 40);
-		cards_in_lib.setLocation(this.getWidth()/15*13, this.getHeight()/15*9);
+		cards_in_lib.setBounds(this.getWidth() / 15 * 13, this.getHeight() / 15 * 8, 100, 40);
+		cards_in_lib.setLocation(this.getWidth() / 15 * 13, this.getHeight() / 15 * 9);
 		mainPanel.add(cards_in_lib);
 		mainPanel.setComponentZOrder(cards_in_lib, 0);
-		
-		
+
 		mainPanel.add(library);
 		mainPanel.add(opp_library);
 
@@ -240,72 +233,66 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		this.setVisible(true);
 
 	}
-	
-	public static BufferedImage convertToBufferedImage(Image image)
-	{
-	    BufferedImage newImage = new BufferedImage(
-	        image.getWidth(null), image.getHeight(null),
-	        BufferedImage.TYPE_INT_ARGB);
-	    Graphics2D g = newImage.createGraphics();
-	    g.drawImage(image, 0, 0, null);
-	    g.dispose();
-	    return newImage;
+
+	public static BufferedImage convertToBufferedImage(Image image) {
+		BufferedImage newImage = new BufferedImage(image.getWidth(null), image.getHeight(null),
+				BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = newImage.createGraphics();
+		g.drawImage(image, 0, 0, null);
+		g.dispose();
+		return newImage;
 	}
-	
-	public JLabel getRotatedJLabelFromLabel(JLabel uprightLabel){
+
+	public JLabel getRotatedJLabelFromLabel(JLabel uprightLabel) {
 
 		Image image = getImageFromJLabel(uprightLabel);
-		
+
 		BufferedImage bi = convertToBufferedImage(image);
-		
+
 		JLabel rotated = new JLabel() {
-			
+
 			@Override
 			public Dimension getPreferredSize() {
 				return new Dimension(cardWidth, cardHeight);
 			}
+
 			@Override
 			protected void paintComponent(Graphics g) {
 				super.paintComponent(g);
 				Graphics2D g2 = (Graphics2D) g;
-				g2.rotate(Math.PI / 2, cardHeight/2 , cardHeight/2);
-				
-				
+				g2.rotate(Math.PI / 2, cardHeight / 2, cardHeight / 2);
+
 				g2.drawImage(bi, 0, 0, null);
 			}
 		};
-		
+
 		this.setVisible(true);
-		
+
 		return rotated;
 
 	}
-	
-	
 
 	public Card getCardFromId(String id) {
-		
+
 		for (Card card : allCardsStack) {
-			if(card.getId().equals(id)) {
+			if (card.getId().equals(id)) {
 				return card;
 			}
 		}
 		System.err.println("didn't find card from id");
 		return null;
 	}
-	
+
 	public Card getCardFromRotatedId(String id) {
-		
+
 		for (Card card : allCardsStack) {
-			if(id.contains(card.getId())) {
+			if (id.contains(card.getId())) {
 				return card;
 			}
 		}
 		System.err.println("didn't find card from rotated id");
 		return null;
 	}
-	
-	
 
 	public JLabel getLabelFromPath(String imagePath) {
 
@@ -315,7 +302,7 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		return label;
 
 	}
-	
+
 	public Image getImageFromJLabel(JLabel jLabel) {
 
 		Image image = ((ImageIcon) jLabel.getIcon()).getImage();
@@ -323,9 +310,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 		return image;
 
 	}
-	
-
-	
 
 	public JLabel[] getLabelFromUrl(String imageUrl) {
 		Image image = null;
@@ -420,16 +404,17 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 		if (nameOk == JOptionPane.OK_OPTION && !deckNameField.getText().isEmpty()) {
 
-			// All card fetching threads must have finished before we start initializing cards
-			
+			// All card fetching threads must have finished before we start initializing
+			// cards
+
 			deck.setDeckName(deckNameField.getText());
-			
+
 			while (Thread.activeCount() > 2) {
-				//wait until all cards are fetched
+				// wait until all cards are fetched
 			}
-			
+
 			FileHandler.storeDeck(deck);
-			
+
 			JMenuItem loadDeckMenuItem = new JMenuItem(deckNameField.getText());
 			loadDeckMenuItem.addActionListener(this);
 			Play.add(loadDeckMenuItem);
@@ -438,10 +423,9 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			loadDeckMenuItem.addActionListener(this);
 			Delete.add(deleteDeckMenuItem);
 
-			//System.out.println("finished loading");
-			
-			initSmallAndBigCards(deckNameField.getText());
+			// System.out.println("finished loading");
 
+			initSmallAndBigCards(deckNameField.getText());
 
 		} else if (nameOk == JOptionPane.OK_OPTION && deckNameField.getText().isEmpty()) {
 
@@ -502,7 +486,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 				// adding the amount of the requested card
 				for (int i = 0; i < Integer.valueOf(amountFromField); i++) {
 
-					//deck.addCard(new Card(textFromField + Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
+					// deck.addCard(new Card(textFromField +
+					// Integer.toString(deck.getNumberOfCards()), cardToAddUrl));
 
 					deck.addCard(new Card(textFromField, cardToAddUrl));
 
@@ -527,36 +512,38 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	}
 
 	public void initSmallAndBigCards(String deckName) {
-		
+
 		// add check to see that deck exists
-		
-		
-		deck = FileHandler.fetchDeck(deckName);
-		
-		
-		
-		//hide all previous card images
-		for(int i=0; i<allCardsStack.size();i++) {
+
+		try {
+			deck = FileHandler.fetchDeck(deckName);
+		} catch (NullPointerException e) {
+			System.out.println("The deck " + deckName + " doesn't exist");
+		}
+
+
+		// hide all previous card images
+		for (int i = 0; i < allCardsStack.size(); i++) {
 			allCardsStack.get(i).getLabel().setVisible(false);
 			allCardsStack.get(i).getRotatedLabel().setVisible(false);
 			allCardsStack.get(i).getZoomedLabel().setVisible(false);
-			
+
 		}
-		
-		//clear the list, might be unnecessary
+
+		// clear the list, might be unnecessary
 		allCardsStack = new Stack<Card>();
-		
-		for(int i=0;i<deck.getCards().size();i++) {
-			
+
+		for (int i = 0; i < deck.getCards().size(); i++) {
+
 			allCardsStack.add(deck.getCards().get(i));
 		}
 
-		//for all cards in deck
-		for(int i=0; i<allCardsStack.size();i++) {
-			
+		// for all cards in deck
+		for (int i = 0; i < allCardsStack.size(); i++) {
+
 			Card cardToAdd = allCardsStack.get(i);
 			String urlToAdd = cardToAdd.getUrl();
-			
+
 			JLabel smallLabelToAdd = getLabelFromUrl(urlToAdd)[0];
 			JLabel zoomedLabelToAdd = getLabelFromUrl(urlToAdd)[1];
 			JLabel rotatedLabelToAdd = getRotatedJLabelFromLabel(smallLabelToAdd);
@@ -565,21 +552,21 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			smallLabelToAdd.addMouseMotionListener(GraphicsMain.this);
 			smallLabelToAdd.addMouseListener(GraphicsMain.this);
 			smallLabelToAdd.setName(cardToAdd.getId());
-			
+
 			allCardsStack.get(i).setLabel(smallLabelToAdd);
-			
+
 			rotatedLabelToAdd.setName(cardToAdd.getId() + "rotated");
 			rotatedLabelToAdd.addMouseMotionListener(GraphicsMain.this);
 			rotatedLabelToAdd.addMouseListener(GraphicsMain.this);
 			rotatedLabelToAdd.setBounds(2000, 2000, cardHeight, cardWidth);
-			
+
 			allCardsStack.get(i).setRotatedLabel(rotatedLabelToAdd);
-			
+
 			zoomedLabelToAdd.setName(cardToAdd.getId());
 			zoomedLabelToAdd.setBounds(2000, 2000, cardWidth * 2, cardHeight * 2);
 
 			allCardsStack.get(i).setZoomedLabel(zoomedLabelToAdd);
-			
+
 			mainPanel.add(smallLabelToAdd);
 			mainPanel.add(rotatedLabelToAdd);
 			mainPanel.add(zoomedLabelToAdd);
@@ -630,8 +617,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 			// here we wait for all threads to finish
 
-			
-
 			nameYourDeckPopup();
 
 			// else we just close, there's nothing to save
@@ -639,36 +624,33 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 	}
 
-
 	@Override
 	public void mouseDragged(MouseEvent e) {
 
 		String enteredCard = e.getComponent().getName();
-		
 
 		if (enteredCard != null && enteredCard != "background") {
 
-			
 			int mouseX = (int) (MouseInfo.getPointerInfo().getLocation().getX() - this.getX());
 			int mouseY = (int) (MouseInfo.getPointerInfo().getLocation().getY() - this.getY());
 
 			// drag card from top of library
 			if (enteredCard.equals("library") && deck.hasCards()) {
 
-				//drag new card from deck and move it
+				// drag new card from deck and move it
 				String cardToMoveName = deck.PeekTopCard().getId();
 				getCardFromId(cardToMoveName).getLabel().setLocation(mouseX - 40, mouseY - 70);
 
-				//do not zoom
+				// do not zoom
 				getCardFromId(cardToMoveName).getZoomedLabel().setLocation(2000, 2000);
-				
+
 			}
 
 			// move around a card from outside of library
 			if ((!enteredCard.equals("library") && (!enteredCard.contains("rotated")))) {
 
 				getCardFromId(enteredCard).getLabel().setLocation(mouseX - 40, mouseY - 70);
-				
+
 				// do not zoom
 				getCardFromId(enteredCard).getZoomedLabel().setLocation(2000, 2000);
 
@@ -676,8 +658,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 			if ((!enteredCard.equals("library") && (enteredCard.contains("rotated")))) {
 
 				getCardFromRotatedId(enteredCard).getRotatedLabel().setLocation(mouseX - 40, mouseY - 70);
-				
-				//do not zoom
+
+				// do not zoom
 				getCardFromRotatedId(enteredCard).getZoomedLabel().setLocation(2000, 2000);
 
 			}
@@ -699,34 +681,36 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 		if (enteredCard != null && enteredCard != "background") {
 
-			//we right clicked the library
+			// we right clicked the library
 			if (SwingUtilities.isRightMouseButton(e) && enteredCard.equals("library")) {
 				rightClickLibraryMenu.show(e.getComponent(), e.getX(), e.getY());
 
 			}
 
 			// we right clicked a card other than library
-			if (SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library") && !enteredCard.equals("opp_library")) {
+			if (SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library")
+					&& !enteredCard.equals("opp_library")) {
 				rightClickCardMenu.show(e.getComponent(), e.getX(), e.getY());
 
 			}
-			
-			// we rotate a card
-			if (!SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library") && !enteredCard.equals("opp_library") && !enteredCard.contains("rotated")) {
 
-				getCardFromId(enteredCard).getRotatedLabel().setLocation(e.getComponent().getX(), e.getComponent().getY());
+			// we rotate a card
+			if (!SwingUtilities.isRightMouseButton(e) && !enteredCard.equals("library")
+					&& !enteredCard.equals("opp_library") && !enteredCard.contains("rotated")) {
+
+				getCardFromId(enteredCard).getRotatedLabel().setLocation(e.getComponent().getX(),
+						e.getComponent().getY());
 
 				e.getComponent().setLocation(4000, 4000);
 
 			}
-			//we untap a rotated card
+			// we untap a rotated card
 			if (!SwingUtilities.isRightMouseButton(e) && enteredCard.contains("rotated")) {
 
-
-				getCardFromRotatedId(enteredCard).getLabel().setLocation(e.getComponent().getX(), e.getComponent().getY());
+				getCardFromRotatedId(enteredCard).getLabel().setLocation(e.getComponent().getX(),
+						e.getComponent().getY());
 				e.getComponent().setLocation(4000, 4000);
 
-				
 			}
 
 		}
@@ -758,7 +742,6 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	public void mouseEntered(MouseEvent e) {
 
 		String enteredCard = e.getComponent().getName();
-		
 
 		if (enteredCard != null && enteredCard != "background") {
 
@@ -771,13 +754,12 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 				int enteredCardX = e.getComponent().getX();
 				int enteredCardY = e.getComponent().getY();
 
-
 				getCardFromId(enteredCard).getZoomedLabel().setLocation(enteredCardX, enteredCardY);
-				
+
 				setVisible(true);
 
 			}
-			
+
 			if (!enteredCard.equals("library") && enteredCard.contains("rotated")) {
 
 				int enteredCardX = e.getComponent().getX();
@@ -785,10 +767,10 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 
 				// for all big labels, we find the one with the right name
 
-				//find big image with same name
-				
+				// find big image with same name
+
 				getCardFromRotatedId(enteredCard).getZoomedLabel().setLocation(enteredCardX, enteredCardY);
-				
+
 				setVisible(true);
 
 			}
@@ -801,16 +783,16 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	public void mouseExited(MouseEvent e) {
 
 		String exitedCard = e.getComponent().getName();
-		
+
 		if (exitedCard != null && exitedCard != "library" && exitedCard != "background") {
-			
-			if(exitedCard.contains("rotated")) {
-				
+
+			if (exitedCard.contains("rotated")) {
+
 				getCardFromRotatedId(exitedCard).getZoomedLabel().setLocation(2000, 2000);
-				
-			}else if(!exitedCard.contains("rotated")) {
+
+			} else if (!exitedCard.contains("rotated")) {
 				getCardFromId(exitedCard).getZoomedLabel().setLocation(2000, 2000);
-				
+
 			}
 		}
 
@@ -819,56 +801,51 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 	@Override
 	public void actionPerformed(ActionEvent e) {
 
-
 		if (e.getActionCommand().equals("Build new deck")) {
 
 			addCardsPopup();
-		}
-		else if (e.getActionCommand().equals("Experience")) {
+		} else if (e.getActionCommand().equals("Experience")) {
 
 			System.out.println("Experience");
-		}
-		else if (e.getActionCommand().equals("Poison")) {
+		} else if (e.getActionCommand().equals("Poison")) {
 
 			System.out.println("Poison");
-		}
-		else if (e.getActionCommand().equals("Custom")) {
+		} else if (e.getActionCommand().equals("Custom")) {
 
 			System.out.println("Custom");
-		}else if (e.getActionCommand().equals("Fetch card from outside game")) {
+		} else if (e.getActionCommand().equals("Fetch card from outside game")) {
 
 			System.out.println("Fetch card");
-		}else if (e.getActionCommand().equals("Shuffle deck")) {
+		} else if (e.getActionCommand().equals("Shuffle deck")) {
 
-				System.out.println("Shuffle");
-				deck.shuffle();
-		}else if (e.getActionCommand().equals("Put card on top of library")) {
+			System.out.println("Shuffle");
+			deck.shuffle();
+		} else if (e.getActionCommand().equals("Put card on top of library")) {
 
-			
 			System.out.println("put on top of library");
 			JLabel clickedLabel = (JLabel) e.getSource();
-			//deck.addCard(new Card(clickedLabel.getName(), fetchImageUrlFromCardName(clickedLabel.getName())));
-			
-		}else{
-			for(Deck loadDeck : FileHandler.fetchAllDecks()) {
-				if(e.getActionCommand().equals(loadDeck.getDeckName())) {
+			// deck.addCard(new Card(clickedLabel.getName(),
+			// fetchImageUrlFromCardName(clickedLabel.getName())));
+
+		} else {
+			for (Deck loadDeck : FileHandler.fetchAllDecks()) {
+				if (e.getActionCommand().equals(loadDeck.getDeckName())) {
 					System.out.println("playing " + loadDeck.getDeckName());
 
-					//clear board
+					// clear board
 					initSmallAndBigCards(loadDeck.getDeckName());
 					updateCardsInLibText();
 
-					
-				}else if(e.getActionCommand().contains(loadDeck.getDeckName())) {
+				} else if (e.getActionCommand().contains(loadDeck.getDeckName())) {
 					System.out.println("deleting " + loadDeck.getDeckName());
-					
-					//FileHandler.deleteDeck(loadDeck.getDeckName());
-					//update top menu lists
-					
+
+					// FileHandler.deleteDeck(loadDeck.getDeckName());
+					// update top menu lists
+
 				}
-				
+
 			}
-			
+
 		}
 
 	}
