@@ -1,9 +1,14 @@
 import java.util.ArrayList;
 
+import javax.swing.JLabel;
+
 public class Card {
 	private String name;
 	private String cardUrl;
 	private ArrayList<String> counters;
+	private JLabel label;
+	private JLabel rotatedLabel;
+	private JLabel zoomedLabel;
 
 	public Card(String name, String cardUrl) {
 		this.name = name;
@@ -33,5 +38,29 @@ public class Card {
 	
 	public String getId() {
 		return Integer.toString(this.hashCode());
+	}
+
+	public void setLabel(JLabel label) {
+		this.label = label;
+	}
+
+	public void setRotatedLabel(JLabel label) {
+		this.rotatedLabel = label;
+	}
+
+	public void setZoomedLabel(JLabel label) {
+		this.zoomedLabel = label;
+	}
+
+	public JLabel getLabel() {
+		return this.label;
+	}
+
+	public JLabel getRotatedLabel() {
+		return this.rotatedLabel;
+	}
+
+	public JLabel getZoomedLabel() {
+		return this.zoomedLabel;
 	}
 }
