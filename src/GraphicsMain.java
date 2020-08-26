@@ -839,8 +839,8 @@ public class GraphicsMain extends JFrame implements MouseListener, MouseMotionLi
 				} else if (e.getActionCommand().contains(loadDeck.getDeckName())) {
 					System.out.println("deleting " + loadDeck.getDeckName());
 
-					// FileHandler.deleteDeck(loadDeck.getDeckName());
-					// update top menu lists
+					FileHandler.deleteDeck(loadDeck.getDeckName());
+					// TODO: update top menu lists
 
 				}
 
