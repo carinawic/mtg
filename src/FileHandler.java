@@ -47,19 +47,58 @@ public class FileHandler {
 		}
 	}
 
-	public static Deck fetchDeck(String deckName) {
-		ArrayList<Deck> allDecks = fetchAllDecks();
-		if (allDecks != null) {
+	public static void deleteDeck(String deckName) {
+		try {
+			ArrayList<Deck> allDecks = fetchAllDecks();
 			for (Deck deck : allDecks) {
 				if (deck.getDeckName().equals(deckName)) {
-
+					allDecks.remove(deck);
 					// DEBUG
-					System.out.println("FileHandler returned: " + deck.toString() + "\n");
-
-					return deck;
+					System.out.println("FileHandler deleted: " + deck.toString() + "\n");
+					break;
 				}
 			}
+			PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+
+			if (!allDecks.isEmpty()) {
+				StringBuilder sb = new StringBuilder();
+				int i = 0;
+				for (Deck d : allDecks) {
+					sb.append(d.toString());
+					if (i < allDecks.size()) {
+						sb.append(separator4);
+					}
+					i++;
+				}
+				pw.write(sb.toString());
+			} else {
+				pw.write("");
+			}
+			pw.close();
+		} catch (IOException e) {
+			System.out.println(e);
 		}
+	}
+
+	public static void deleteAllDecks() {
+		try {
+			PrintWriter pw = new PrintWriter(new FileOutputStream(fileName));
+			pw.write("");
+			pw.close();
+		} catch (IOException e) {
+			System.out.println(e);
+		}
+	}
+
+	public static Deck fetchDeck(String deckName) {
+		ArrayList<Deck> allDecks = fetchAllDecks();
+		for (Deck deck : allDecks) {
+			if (deck.getDeckName().equals(deckName)) {
+				System.out.println("FileHandler fetched:" + deck.toString());
+				return deck;
+			}
+		}
+
 		return null;
 	}
 
@@ -75,6 +114,10 @@ public class FileHandler {
 				line = br.readLine();
 			}
 			br.close();
+			
+			if(sb.toString().equals("")){
+				return new ArrayList<Deck>();
+			}
 
 			String[] stringDecks = sb.toString().split(FileHandler.separator4);
 
@@ -98,11 +141,6 @@ public class FileHandler {
 					deck.addCard(card);
 				}
 				decks.add(deck);
-			}
-
-			System.out.println("FileHandler fetched:");
-			for (Deck d : decks) {
-				System.out.println(d.toString() + "\n");
 			}
 
 			return decks;
